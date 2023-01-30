@@ -22,6 +22,7 @@ namespace MasterMind
         static void Main(string[] args)
         {
             List<Attempt> allAttempts = new List<Attempt>();
+            bool gameWon = false;
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Welcome to Mastermind!");
@@ -42,33 +43,77 @@ namespace MasterMind
             //show cheat? 
             MMLib.Cheat(answer, pegList);
 
-            //loop while !gameWon && maxTurns != 0
-            //  get user attempt
-            //  Check the attempt for a correct guess
-            //  add the attempt to the attempt list
-            //  determin if the game has been won or not
-            //  reduce the maxTurns
+
+            do
+            {
+
+                //  get user attempt
+                Attempt attempt = GetAttemptFromUser(maxPegs, allAttempts, maxTurns);
+
+                //  Check the attempt for a correct guess
+                CheckAttempt(attempt, answer);
+                //  add the attempt to the attempt list
+                allAttempts.Add(attempt);
+                //  determine if the game has been won or not
+                if (attempt.CorrectAnswerCount == maxPegs)
+                {
+                    gameWon = true;
+                }
+                //  reduce the maxTurns
+                maxTurns--;
+
+
+
+            } while (!gameWon && maxTurns != 0);//loop while !gameWon && maxTurns != 0
 
             //If won, display Game Won!
+            if (gameWon)
+            {
+                Console.WriteLine("You won");
+                MMLib.ShowAnswer(answer, pegList, "0");
+            }
             //If lost, show game loss
-            //show the correct answer
+            if(!gameWon && maxTurns == 0)
+            {
+                Console.WriteLine("you lost");
+                //show the correct answer
+                MMLib.ShowAnswer(answer, pegList, "0");
+            }
+
+
         }
 
         static Attempt GetAttemptFromUser(int maxPegs, List<Attempt> allAttempts, int maxTurns)
         {
             //Create a new Attempt
-            //Get color options based on maxPegs
-            //Loop of # of pegs they need to choose
-            //      clear console
-            //      Display # of attempts left
-            //      Show all previous attempts
-            //      Show pegs they have chosen already in this attempt
-            //      Ask them to pick a peg color from a menu of options
-            //      Add the chosen peg to the Attempt.AttemptList
-            //Return the attempt when done
-
             Attempt attempt = new Attempt();
 
+            //Get color options based on maxPegs
+            MMLib.GetColorOptions(maxPegs, pegList);
+
+            //Loop of # of pegs they need to choose
+            for(int i = 0; i < maxPegs; i++)
+            {
+
+                //      clear console
+                Console.Clear();
+                //      Display # of attempts left
+                MMLib.ShowAttempts(allAttempts, pegList, "0");
+                //      Show all previous attempts
+                MMLib.ShowAttempts(allAttempts, pegList, "0");
+                //      Show pegs they have chosen already in this attempt
+                MMLib.ShowChosenPegs(attempt, pegList);
+
+                //      Ask them to pick a peg color from a menu of options
+                int pickPeg = MMLib.GetConsoleMenu(MMLib.GetColorOptions(maxPegs, pegList))-1;
+                //      Add the chosen peg to the Attempt.AttemptList
+                attempt.AttemptList.Add(pickPeg);
+                
+            }
+
+
+
+            //Return the attempt when done
             return attempt;
         }
 
@@ -77,6 +122,12 @@ namespace MasterMind
         {
             //Check the attempt.AttemptList to see if they got a match to the answer
             //If a peg is correct, increment the attempt.CorrectAnswerCount
+            for (int i = 0; i < answer.Count; i++)
+            {
+                if (attempt.AttemptList[i] == answer[i]) {
+                    attempt.CorrectAnswerCount++;
+                }
+            }
         }
     }
 }
